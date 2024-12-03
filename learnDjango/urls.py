@@ -21,4 +21,7 @@ from django.urls.conf import include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/account/', include('account.urls')),
+    path('api/transaction/', include('transaction.urls')),
+    # path('api/support/', include('support.urls')),
+    # path('api/notifications/', include('notifications.urls')),
 ]
