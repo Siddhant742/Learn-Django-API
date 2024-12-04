@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Admin Dashboard</h2>
+        <nav>
+            <ul>
+                <li><a href="{% url 'backend:verify_user_id_images' %}">Verify User ID Images</a></li>
+                <li><a href="{% url 'backend:verify_prescriptions' %}">Verify Prescriptions</a></li>
+                <li><a href="{% url 'backend:view_orders' %}">View Orders</a></li>
+                <li><a href="{% url 'backend:userlogout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+</body>
+</html>

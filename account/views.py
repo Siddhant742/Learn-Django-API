@@ -30,6 +30,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class = UserProfileSerializer
 
     def get_queryset(self):
+        print(self.request.user.id)
         return User.objects.filter(id=self.request.user.id)
 
     @action(detail=False, methods=['PUT'], serializer_class=UserIdentityVerificationSerializer)
@@ -85,6 +86,7 @@ class UserRegistrationView(APIView):
             try:
                 user = serializer.save()
                 refresh = RefreshToken.for_user(user)
+                print(f"Created user ID: {user.id}")
                 
                 return create_response(
                     data={
@@ -102,6 +104,7 @@ class UserRegistrationView(APIView):
                     message='User registered successfully.',
                     status_code=status.HTTP_201_CREATED
                 )
+                
             
             except Exception as e:
                 return create_response(
@@ -123,6 +126,7 @@ class UserLoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data
             refresh = RefreshToken.for_user(user)
+            print(f"Logged in user ID: {user.id}")
             
             return create_response(
                 data={
@@ -141,6 +145,7 @@ class UserLoginView(APIView):
                 message='Login successful',
                 status_code=status.HTTP_200_OK
             )
+            
         
         return create_response(
             success=False,

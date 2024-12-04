@@ -1,0 +1,49 @@
+{%load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Prescriptions</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Verify Prescriptions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Prescription ID</th>
+                    <th>User</th>
+                    <th>Image</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prescription in prescriptions %}
+                <tr>
+                    <td>{{ prescription.id }}</td>
+                    <td>{{ prescription.user.username }}</td>
+                    <td><img src="{{ prescription.image.url }}" alt="Prescription Image" width="100"></td>
+                    <td>
+                        <form method="POST" action="{% url 'backend:verify_prescriptions' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="prescription_id" value="{{ prescription.id }}">
+                            <button type="submit" name="action" value="approve">Approve</button>
+                            <button type="submit" name="action" value="reject">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>

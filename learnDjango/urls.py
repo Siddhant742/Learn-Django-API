@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/account/', include('account.urls')),
     path('api/transaction/', include('transaction.urls')),
+    path('admin_panel/', include('admin_panel.urls')),
     # path('api/support/', include('support.urls')),
     # path('api/notifications/', include('notifications.urls')),
 ]
