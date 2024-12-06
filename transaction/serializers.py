@@ -23,9 +23,16 @@ class PrescriptionSerializer(serializers.ModelSerializer):
         return data
 
 class OrderSerializer(serializers.ModelSerializer):
-    prescription = PrescriptionSerializer(read_only=True)
-    
+    prescription_image = serializers.ImageField(write_only=True)
+    description = serializers.CharField(write_only=True, required=False)
+    payment_slip = serializers.ImageField(write_only=True)
+
     class Meta:
         model = Order
-        fields = ['id', 'prescription', 'total_amount', 'status', 'delivery_address', 'created_at']
-        read_only_fields = ['status', 'id', 'created_at']
+        fields = ['id', 'prescription_image', 'status', 'delivery_address', 'description','payment_slip', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        prescription_image = validated_data.pop('prescription_image')
+        prescription = Prescription.objects.create(user=validated_data['user'], prescription_image=prescription_image)
+        order = Order.objects.create(prescription=prescription, **validated_data)
+        return order
