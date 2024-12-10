@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -87,3 +87,16 @@ def view_orders(request):
     print("View orders called")
     orders = Order.objects.all()
     return render(request, 'backend/view_orders.html', {'orders': orders})
+
+@login_required
+def user_list(request):
+    print("User list called")
+    users = User.objects.all()
+    return render(request, 'backend/user_list.html', {'users': users})
+
+@login_required
+def user_order_list(request, user_id):
+    print("User order list called")
+    user = get_object_or_404(User, id=user_id)
+    orders = Order.objects.filter(user=user)
+    return render(request, 'backend/user_order_list.html', {'orders': orders, 'user': user})

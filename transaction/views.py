@@ -41,7 +41,27 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).order_by('-created_at')
+        return Order.objects.filter(
+            user=self.request.user
+        ).select_related('prescription').order_by('-created_at')
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        prescription_image = self.request.data.get('prescription_image')
+        prescription_data = {'prescription_image': prescription_image} if prescription_image else None
+        
+        serializer.save(
+            user=self.request.user,
+            prescription_data=prescription_data
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({
+            'id': serializer.data['id'],
+            'prescription': serializer.data['prescription'],
+            'status': serializer.data['status'],
+            'delivery_address': serializer.data['delivery_address'],
+            'created_at': serializer.data['created_at'],
+            'payment_slip': serializer.data['payment_slip']
+        })

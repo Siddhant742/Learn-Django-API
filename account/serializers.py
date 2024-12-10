@@ -103,7 +103,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 class UserLoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(
         write_only=True, 
         required=True, 
@@ -111,11 +111,11 @@ class UserLoginSerializer(serializers.Serializer):
     )
 
     def validate(self, data):
-        username = data.get('username')
+        email = data.get('email')
         password = data.get('password')
         
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             raise serializers.ValidationError("User not found.")
         

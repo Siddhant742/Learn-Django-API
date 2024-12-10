@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import login_view, userlogout, index, verify_user_id_images, verify_prescriptions, view_orders
+from .views import login_view, userlogout, index, verify_user_id_images, verify_prescriptions, view_orders, user_list, user_order_list
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -12,4 +12,6 @@ urlpatterns = [
     path('verify-user-id-images/', verify_user_id_images, name='verify_user_id_images'),
     path('verify-prescriptions/', verify_prescriptions, name='verify_prescriptions'),
     path('view-orders/', view_orders, name='view_orders'),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('user-list/', user_list, name='user_list'),
+    path('user-order-list/<int:user_id>/', user_order_list, name='user_order_list'),
+]

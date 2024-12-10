@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify User ID Images</title>
+    <title>User List</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <style>
@@ -26,20 +26,23 @@
 </head>
 <body>
     <div class="container">
-        <h2 class="mb-4">Verify User ID Images</h2>
+        <h2 class="mb-4">User List</h2>
         <table class="table table-bordered table-hover">
             <thead class="thead-light">
                 <tr>
+                    <th>User ID</th>
                     <th>Username</th>
                     <th>Email</th>
                     <th>Front ID Image</th>
                     <th>Back ID Image</th>
-                    <th>Action</th>
+                    <th>Verification Status</th>
+                    <th>Orders</th>
                 </tr>
             </thead>
             <tbody>
                 {% for user in users %}
                 <tr>
+                    <td>{{ user.id }}</td>
                     <td>{{ user.username }}</td>
                     <td>{{ user.email }}</td>
                     <td>
@@ -48,14 +51,8 @@
                     <td>
                         <img src="{{ user.back_id_image.url }}" alt="Back ID Image" data-toggle="modal" data-target="#imageModal" data-image="{{ user.back_id_image.url }}">
                     </td>
-                    <td>
-                        <form method="POST" action="{% url 'backend:verify_user_id_images' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="user_id" value="{{ user.id }}">
-                            <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
-                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
-                        </form>
-                    </td>
+                    <td>{{ user.verification_status }}</td>
+                    <td><a href="{% url 'backend:user_order_list' user.id %}" class="btn btn-primary btn-sm">Orders List</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

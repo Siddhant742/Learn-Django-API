@@ -23,16 +23,43 @@ class PrescriptionSerializer(serializers.ModelSerializer):
         return data
 
 class OrderSerializer(serializers.ModelSerializer):
-    prescription_image = serializers.ImageField(write_only=True)
-    description = serializers.CharField(write_only=True, required=False)
-    payment_slip = serializers.ImageField(write_only=True)
-
+    prescription = PrescriptionSerializer(read_only=True)
+    payment_slip = serializers.ImageField(required=True)
+    delivery_address = serializers.CharField(required=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    
     class Meta:
         model = Order
-        fields = ['id', 'prescription_image', 'status', 'delivery_address', 'description','payment_slip', 'created_at', 'updated_at']
+        fields = ['id', 'prescription', 'status', 'delivery_address', 
+                 'payment_slip', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+    def validate_payment_slip(self, value):
+        max_file_size = 10 * 1024 * 1024  # 10MB
+        if value.size > max_file_size:
+            raise serializers.ValidationError(
+                "Payment slip file size must be under 10MB."
+            )
+        return value
 
     def create(self, validated_data):
-        prescription_image = validated_data.pop('prescription_image')
-        prescription = Prescription.objects.create(user=validated_data['user'], prescription_image=prescription_image)
-        order = Order.objects.create(prescription=prescription, **validated_data)
+        user = validated_data.pop('user')
+        prescription_data = validated_data.pop('prescription_data', None)
+        
+        if prescription_data and prescription_data.get('prescription_image'):
+            prescription = Prescription.objects.create(
+                user=user,
+                prescription_image=prescription_data['prescription_image']
+            )
+        else:
+            raise serializers.ValidationError({
+                'prescription': "Prescription data is required."
+            })
+            
+        order = Order.objects.create(
+            user=user,
+            prescription=prescription,
+            **validated_data
+        )
         return order
+

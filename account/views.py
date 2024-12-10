@@ -29,8 +29,25 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
 
+    def list(self, request):
+        user = request.user
+        serializer = self.get_serializer(user)
+        
+        refresh = RefreshToken.for_user(user)
+        
+        return create_response(
+            data={
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'verification_status': user.verification_status
+            },
+            message='User profile retrieved successfully',
+            status_code=status.HTTP_200_OK
+        )
+
     def get_queryset(self):
-        print(self.request.user.id)
         return User.objects.filter(id=self.request.user.id)
 
     @action(detail=False, methods=['PUT'], serializer_class=UserIdentityVerificationSerializer)
@@ -40,16 +57,13 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(user, data=request.data)
 
             if serializer.is_valid():
-                # Update verification status and documents
                 user.front_id_image = serializer.validated_data.get('front_id_image')
                 user.back_id_image = serializer.validated_data.get('back_id_image')
                 user.verification_status = 'pending'
                 user.save()
 
                 return create_response(
-                    data={
-                        'verification_status': 'pending'
-                    },
+                    data={'verification_status': 'pending'},
                     message='Identity documents uploaded successfully. Awaiting verification.',
                     status_code=status.HTTP_200_OK
                 )
@@ -72,9 +86,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     def verification_status(self, request):
         user = request.user
         return create_response(
-            data={
-                'verification_status': user.verification_status
-            },
+            data={'verification_status': user.verification_status},
             status_code=status.HTTP_200_OK
         )
 
@@ -86,7 +98,6 @@ class UserRegistrationView(APIView):
             try:
                 user = serializer.save()
                 refresh = RefreshToken.for_user(user)
-                print(f"Created user ID: {user.id}")
                 
                 return create_response(
                     data={
@@ -104,7 +115,6 @@ class UserRegistrationView(APIView):
                     message='User registered successfully.',
                     status_code=status.HTTP_201_CREATED
                 )
-                
             
             except Exception as e:
                 return create_response(
@@ -126,7 +136,6 @@ class UserLoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data
             refresh = RefreshToken.for_user(user)
-            print(f"Logged in user ID: {user.id}")
             
             return create_response(
                 data={
@@ -135,6 +144,7 @@ class UserLoginView(APIView):
                         'access': str(refresh.access_token)
                     },
                     'user': {
+                        'user_id'   : user.id,
                         'username': user.username,
                         'email': user.email,
                         'first_name': user.first_name,
@@ -145,7 +155,6 @@ class UserLoginView(APIView):
                 message='Login successful',
                 status_code=status.HTTP_200_OK
             )
-            
         
         return create_response(
             success=False,
